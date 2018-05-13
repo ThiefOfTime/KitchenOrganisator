@@ -1,0 +1,22 @@
+Menge:Name:prep
+
+200g:Champignons:gewürfelt
+4:saure Gurken:streifen
+2:Zwiebeln:gewürfelt
+1EL:Albaöl:None
+550ml:Gemüsebrühe:None
+250ml:vegane Sahne:None
+0.5El:Mehl:None
+Prise:Zucker:None
+1Strung:frische Petersilie:gehackt
+1EL:Wasser:None
+250g:Seitanpulver:None
+25g:Kichererbsenmehl:None
+3TL:Hefeflocken:None
+1EL:Rauchpaprika:None
+1.5TL:Salz:None
+0.5TL:Pfeffer:None
+25ml:Sojasauce:None
+1EL:Tomatenmark:None
+2EL:Senf:None
+0.5TL:Liquid Smoke:None 

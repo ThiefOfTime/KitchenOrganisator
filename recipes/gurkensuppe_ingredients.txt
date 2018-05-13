@@ -1,0 +1,12 @@
+Menge:Name:prep
+
+2:Moehren:gerieben
+70g:Knollensellerie:gerieben
+1L:Gemuesebruehe:None
+7:Salzgurken:gerieben
+200ml:Gurkenwasser:None
+4:Kartoffeln(festkochend):gerieben
+150ml:vegane:Sahne
+250ml:Wasser:None
+1.5TL:Salz:None
+0.5TL:Pfeffer:None

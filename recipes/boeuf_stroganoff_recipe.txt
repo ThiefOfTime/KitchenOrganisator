@@ -1,0 +1,24 @@
+Infos:
+link:http://weganskie.de/rezepte/boeuf-stroganoff/
+prep:60
+cook:40
+bake:NULL
+rest:10
+cool:NULL
+freeze:NULL
+calpp:NULL
+
+Seitan:
+- Seitanpulver, Kichererbsenmehl, Hefeflocken, Rauchpaprika, 1TL Salz  und 0.5TL Pfeffer vermengen
+- 300ml Gemüsebrühe, Sojasauce, 1EL Senf, Tomatenmark, Liquid Smoke in Becher vermengen
+- Alles vermengen und gut verkneten
+- 10 Minuten ziehen lassen
+- Seitan in fünf Milimeter dicke Streifen schneiden
+- mit Salz und Pfeffer durchbraten
+
+Stroganov:
+- Zwiebeln und Pilze anbraten
+- Seitan, Zwiebeln, Pilze, Gurken, 250ml Brühe, Sahne, 3EL Senf und Zucker in Topf geben
+- 25 Minuten köcheln
+- nach 20 Minuten Mehl und Wasser vermengen und zum andicken hinzugeben
+- Abschmecken

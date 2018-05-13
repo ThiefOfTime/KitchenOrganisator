@@ -1,0 +1,10 @@
+Menge:Name:prep
+800g:Dosentomaten:None
+1EL:Albaöl:None
+1:Zwiebel:gehackt
+500ml:Gemüsebrühe:None
+200ml:Sahne:None
+1TL:Salz:None
+0.5TL:Pfeffer:None
+Priese:Zucker:None
+100g:Reis:gekocht
