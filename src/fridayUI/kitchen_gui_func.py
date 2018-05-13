@@ -152,7 +152,8 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         self.bought_rb.clicked.connect(lambda: self.radio_button_clicked(False, None))
 
         # video
-        stand_by_image = cv2.imread('src/teddy.png')
+        stand_by_image = cv2.imread('src/default.png')
+        self.update_frame(stand_by_image)
         #self.queue = queue.Queue()
         #self.capture_thread = threading.Thread(target=self.grab, args=(0, self.queue, stand_by_image))
         #self.timer = QTimer(self)
@@ -247,23 +248,24 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         global running
         running = False
 
-    def update_frame(self):
+    def update_frame(self, img):
         '''
         update the image
         :return:
         '''
-        if not self.queue.empty():
-            frame = self.queue.get()
-            img = frame['img']
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, (246, 182))
-            height, width, bpc = img.shape
-            bpl = bpc * width
-            image = QImage(img.data, width, height, bpl, QtGui.QImage.Format_RGB888)
-            pitem = QGraphicsPixmapItem(QPixmap.fromImage(image))
-            scene = QGraphicsScene()
-            scene.addItem(pitem)
-            self.video_view.setScene(scene)
+        #if not self.queue.empty():
+        #    frame = self.queue.get()
+        #img = frame['img']
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        size = self.video_view.size()
+        img = cv2.resize(img, (size.width()-10, size.height()-10))
+        height, width, bpc = img.shape
+        bpl = bpc * width
+        image = QImage(img.data, width, height, bpl, QtGui.QImage.Format_RGB888)
+        pitem = QGraphicsPixmapItem(QPixmap.fromImage(image))
+        scene = QGraphicsScene()
+        scene.addItem(pitem)
+        self.video_view.setScene(scene)
 
     def calculate_cal(self):
         '''
@@ -493,6 +495,7 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             hours = str(hours)
         return '%s:%s:%s' % (hours, minutes, sek)
 
+    # currently ignore this method
     @staticmethod
     def grab(cam, grab_queue, standby_img):
         '''
