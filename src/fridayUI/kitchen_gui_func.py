@@ -311,7 +311,7 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             self.stuff_table.setItem(i, 1, QTableWidgetItem(item.state))
             self.stuff_table.setItem(i, 2, QTableWidgetItem(item.name))
             if empty:
-                self.stuff_table.item(i, 2).setBackground(QtGui.QColor(255, 128, 128))
+                self.stuff_table.item(i, 0).setBackground(QtGui.QColor(255, 128, 128))
 
     def show_calorie_calc(self, row_count=0):
         '''
@@ -409,8 +409,6 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
                 self.stuff_table.setItem(i, 0, QTableWidgetItem(str(vol)))
                 self.stuff_table.setItem(i, 1, QTableWidgetItem(unit))
                 if cal is None:
-                    self.stuff_table.item(i, 0).setBackground(QtGui.QColor(255, 128, 128))
-                    self.stuff_table.item(i, 1).setBackground(QtGui.QColor(255, 128, 128))
                     self.stuff_table.item(i, 2).setBackground(QtGui.QColor(255, 128, 128))
 
     def set_timer(self, value):
