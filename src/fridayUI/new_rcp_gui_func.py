@@ -6,7 +6,10 @@ Created on Apr 24, 2018
 
 # TODO: kick QtGui import out
 # import PySide modules
-from PySide import QtGui
+try:
+    from PySide.QtGui import QMainWindow, QMessageBox
+except ModuleNotFoundError:
+    from PySide2.QtWidgets import QMainWindow, QMessageBox
 
 # import new recepie gui
 import fridayUI.new_rcp_gui as nrcpd
@@ -15,7 +18,7 @@ import fridayUI.new_rcp_gui as nrcpd
 from connections.HiveIO import RecipeHTMLExtractor, RecipeWriter
 
 
-class NewRecipe(QtGui.QMainWindow, nrcpd.Ui_NewRecipe):
+class NewRecipe(QMainWindow, nrcpd.Ui_NewRecipe):
     '''
     Widget class for the recipe extractor
     '''
@@ -114,7 +117,7 @@ class NewRecipe(QtGui.QMainWindow, nrcpd.Ui_NewRecipe):
                                            self.adress_edit.text())
         else:
             # if anything is missing send warning
-            msg_box = QtGui.QMessageBox()
+            msg_box = QMessageBox()
             msg_box.setText("Some informations are missing!\n Make sure you inserted a recipe with ingredients,\n"
                             " preparaton time, name and portion size.")
             msg_box.exec_()

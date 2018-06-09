@@ -4,6 +4,7 @@ Created on Mar 30, 2018
 @author: ThiefOfTime
 """
 
+import re
 from os import path
 
 from sqlalchemy import create_engine, and_
@@ -155,7 +156,7 @@ class DatabaseConnector:
         '''
         check if in stock
         :param name: check if name in stock
-        :return: (name, bool)
+        :return: bool
         '''
         return self.hive_session.query(Stock).filter(Stock.name == name).first() is not None
 
@@ -185,3 +186,29 @@ class DatabaseConnector:
         :return:
         '''
         return self.hive_session.query(Stock).filter(Stock.buy == empty).all()
+
+    def get_volume_of_item(self, item):
+        '''
+        return volume of item
+        :param item: name of the item
+        :return: (volume, unit)
+        '''
+        vol = self.hive_session.query(Stock).filter(Stock.name == item).first()
+        return vol.vol
+
+    def set_volume_of_item(self, item, volume):
+        '''
+        set volume of item
+        :param item: name of item
+        :param volume: volume of the item
+        :return:
+        '''
+        vol = self.get_volume_of_item(item)
+        reg = re.compile('([0-9,.]+)')
+        vol1 = reg.match(vol)
+        vol2 = reg.match(volume)
+        if vol1 is None or vol2 is None or len(vol1.group(0)) == 0 or len(vol2.group(0)) == 0 or \
+                vol2.group(0) < vol1.group(0):
+            return
+        self.hive_session.query(Stock).filter(Stock.name == item).update({Stock.vol: volume})
+        self.hive_session.commit()

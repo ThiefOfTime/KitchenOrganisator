@@ -5,7 +5,10 @@ Created on Mai 11, 2018
 """
 
 # PySide imports
-from PySide.QtGui import QMainWindow
+try:
+    from PySide.QtGui import QMainWindow
+except ModuleNotFoundError:
+    from PySide2.QtWidgets import QMainWindow
 
 from fridayUI.weekly_add_input_dialoq import WeeklyAddInputDialoq
 

@@ -12,8 +12,14 @@ import queue
 import threading
 
 # PySide imports
-from PySide.QtGui import QMainWindow, QPixmap, QApplication, QImage
-from PySide.QtCore import QTimer
+try:
+    from PySide.QtGui import QMainWindow, QPixmap, QApplication, QImage
+    from PySide.QtCore import QTimer
+except ModuleNotFoundError:
+    from PySide2.QtGui import QPixmap, QImage
+    from PySide2.QtWidgets import QMainWindow, QApplication
+    from PySide2.QtCore import QTimer
+
 
 # import start screen gui
 import fridayUI.start_screen_gui as st

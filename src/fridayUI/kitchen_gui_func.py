@@ -8,13 +8,7 @@ import re
 import cv2
 import queue
 import threading
-
-# TODO: kick QtGUI import out
-# import PySide modules
-from PySide import QtGui
-from PySide.QtGui import QHeaderView, QListWidgetItem, QTableWidgetItem, QImage, QPixmap, QGraphicsPixmapItem, \
-    QGraphicsScene, QWidget, QHBoxLayout, QToolButton, QLCDNumber, QInputDialog, QLineEdit
-from PySide.QtCore import QTime, QTimer, QSize
+import multiprocessing
 
 # import kitchen gui
 import fridayUI.kitchen_gui as kitchen
@@ -24,8 +18,21 @@ from hive.SQLHiveConnection import DatabaseConnector
 from connections.HiveIO import RecipeReader
 from fridayUI.weekly_add_input_dialog_func import MealInputDialog
 
+# import PySide modules
+try:
+    from PySide.QtGui import QHeaderView, QListWidgetItem, QTableWidgetItem, QImage, QPixmap, QGraphicsPixmapItem, \
+        QGraphicsScene, QWidget, QHBoxLayout, QToolButton, QLCDNumber, QInputDialog, QLineEdit, QIcon
+    from PySide.QtCore import QTime, QTimer, QSize
+    pyside_import = True
+except ModuleNotFoundError:
+    from PySide2.QtWidgets import QHeaderView, QListWidgetItem, QTableWidgetItem, QGraphicsPixmapItem, QGraphicsScene, \
+        QWidget, QHBoxLayout, QToolButton, QLCDNumber, QInputDialog, QLineEdit, QMainWindow
+    from PySide2.QtGui import QImage, QPixmap, QIcon, QColor
+    from PySide2.QtCore import QTime, QTimer, QSize
+    pyside_import = False
 
-class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
+
+class Kitchen(QMainWindow, kitchen.Ui_Kitchen):
 
     def __init__(self, start):
         super(Kitchen, self).__init__()
@@ -73,13 +80,21 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
 
         # Tables
         self.stuff_table.setColumnCount(3)
-        self.stuff_table.horizontalHeader().setResizeMode(QHeaderView.Stretch)
+        if not pyside_import:
+            self.stuff_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        else:
+            self.stuff_table.horizontalHeader().setResizeMode(QHeaderView.Stretch)
 
         self.weekly_tw.setColumnCount(1)
         self.weekly_tw.setRowCount(7)
         self.toggle_language()
-        self.weekly_tw.verticalHeader().setResizeMode(QHeaderView.Stretch)
-        self.weekly_tw.horizontalHeader().setResizeMode(QHeaderView.Stretch)
+        if not pyside_import:
+            self.weekly_tw.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.weekly_tw.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        else:
+            self.weekly_tw.verticalHeader().setResizeMode(QHeaderView.Stretch)
+            self.weekly_tw.horizontalHeader().setResizeMode(QHeaderView.Stretch)
+
 
         # Time
         self.time_lcd.setDigitCount(8)
@@ -91,46 +106,49 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         # Timer
         self.timer_lcd.setDigitCount(8)
         self.timer_dial.setMaximum(3600)
-        self.timer_dial.dialMoved.connect(self.set_timer)
+        if pyside_import:
+            self.timer_dial.dialMoved.connect(self.set_timer)
+        else:
+            self.timer_dial.valueChanged.connect(self.set_timer)
         self.timer_timer = QTimer(self)
         self.timer_timer.timeout.connect(self.count_downwards)
         self.timer_bt.clicked.connect(self.timer_start)
         self.timer_time = 0
         self.timer_running = False
-        bl_pixmap = QtGui.QPixmap('icons/aperture.png')
-        red_pixmap = QtGui.QPixmap('icons/aperture_red.png')
-        self.icon_bl = QtGui.QIcon()
+        bl_pixmap = QPixmap('icons/aperture.png')
+        red_pixmap = QPixmap('icons/aperture_red.png')
+        self.icon_bl = QIcon()
         self.icon_bl.addPixmap(bl_pixmap)
-        self.icon_red = QtGui.QIcon()
+        self.icon_red = QIcon()
         self.icon_red.addPixmap(red_pixmap)
 
         # Music buttons
         # prev
-        prev_icon = QtGui.QIcon()
-        prev_pixmap = QtGui.QPixmap('icons/prev.png')
+        prev_icon = QIcon()
+        prev_pixmap = QPixmap('icons/prev.png')
         prev_icon.addPixmap(prev_pixmap)
         self.prev_bt.setIcon(prev_icon)
         # next
-        next_icon = QtGui.QIcon()
-        next_pixmap = QtGui.QPixmap('icons/next.png')
+        next_icon = QIcon()
+        next_pixmap = QPixmap('icons/next.png')
         next_icon.addPixmap(next_pixmap)
         self.next_bt.setIcon(next_icon)
         # play
-        self.play_icon = QtGui.QIcon()
-        play_pixmap = QtGui.QPixmap('icons/play.png')
+        self.play_icon = QIcon()
+        play_pixmap = QPixmap('icons/play.png')
         self.play_icon.addPixmap(play_pixmap)
-        self.pause_icon = QtGui.QIcon()
-        pause_pixmap = QtGui.QPixmap('icons/pause.png')
+        self.pause_icon = QIcon()
+        pause_pixmap = QPixmap('icons/pause.png')
         self.pause_icon.addPixmap(pause_pixmap)
         self.play_pause_bt.setIcon(self.play_icon)
         # stop
-        stop_icon = QtGui.QIcon()
-        stop_pixmap = QtGui.QPixmap('icons/stop.png')
+        stop_icon = QIcon()
+        stop_pixmap = QPixmap('icons/stop.png')
         stop_icon.addPixmap(stop_pixmap)
         self.stop_bt.setIcon(stop_icon)
         # search
-        search_icon = QtGui.QIcon()
-        search_pixmap = QtGui.QPixmap('icons/search2.png')
+        search_icon = QIcon()
+        search_pixmap = QPixmap('icons/search2.png')
         search_icon.addPixmap(search_pixmap)
         self.go_bt.setIcon(search_icon)
 
@@ -142,7 +160,7 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         # button calc
         self.calculate_bt.clicked.connect(self.calculate_cal)
         self.lcd_palette = self.calorie_lcd.palette()
-        self.lcd_palette.setColor(self.lcd_palette.WindowText, QtGui.QColor(102, 255, 102))
+        self.lcd_palette.setColor(self.lcd_palette.WindowText, QColor(102, 255, 102))
         self.calorie_lcd.setPalette(self.lcd_palette)
 
         # radio buttons
@@ -166,6 +184,23 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         # language button
         self.language_bt.clicked.connect(self.toggle_language)
 
+        # Barcode queue and thread
+        # TODO: use different way, not input. maybe get serial to work or make an input window, or start a new program
+        self.bar_thread = multiprocessing.Process(target=Kitchen.read_barcodes,
+                                                  args=(self.update_invent_table_barcode, ))
+        self.bar_thread.start()
+
+    def update_invent_table_barcode(self, bar):
+        '''
+        update the inventory table via barcode
+        :param bar: recieved barcode
+        :return:
+        '''
+        row_count = self.stuff_table.rowCount()
+        self.stuff_table.insertRow(row_count - 1)
+        pass
+
+
     def radio_button_clicked(self, up_cal, empty_full):
         '''
         change button behavior if radio buttons are clicked
@@ -184,14 +219,29 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
                 self.toggle_signal_event(self.calculate_bt.clicked, self.calculate_cal, self.update_database)
                 self.button_bought_calc_val = False
         else:
-            self.show_calorie_calc(row_count=30)
+            self.show_calorie_calc(row_count=2)
             if not self.button_bought_calc_val:
                 self.calculate_bt.setText(self.buttons_text[self.lang_tag][0][1])
                 self.toggle_signal_event(self.calculate_bt.clicked, self.update_database, self.calculate_cal)
                 self.button_bought_calc_val = True
 
     def update_database(self):
-        pass
+        '''
+        update the database
+        :return:
+        '''
+        for i in range(self.stuff_table.rowCount()):
+            vol = ''
+            unit = ''
+            name = ''
+            if self.stuff_table.item(i, 0) is not None and self.stuff_table.item(i, 1) is not None and \
+                    self.stuff_table.item(i, 2) is not None:
+                vol = self.stuff_table.item(i, 0).text()
+                unit = self.stuff_table.item(i, 1).text()
+                name = self.stuff_table.item(i, 2).text()
+            else:
+                return
+            self.recipe_reader.get_hive_connection().set_volume_of_item(name, '%s%s' % (vol, unit))
 
     def toggle_language(self):
         '''
@@ -210,6 +260,7 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         button_text_i = 0 if self.button_bought_calc_val else 1
         self.cancel_bt.setText(self.buttons_text[self.lang_tag][1])
         self.calculate_bt.setText(self.buttons_text[self.lang_tag][0][button_text_i])
+        self.button_bought_calc_val = False
         # radio buttons
         self.cal_rad.setText(self.rad_buttons_text[self.lang_tag][0])
         self.show_emp_rad.setText(self.rad_buttons_text[self.lang_tag][1])
@@ -228,14 +279,15 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         :return:
         '''
         item = self.weekly_tw.item(row, col)
-        if item is None:
+        if item is None or item.text() == '':
             day = self.weekly_vert_header_labels[self.lang_tag][row]
             title = {'en': 'Enter new Meal', 'de': 'Neue Mahlzeit hinzufügen'}
             message = {'en': 'Please enter the meal and link for %s' % day,
                      'de': 'Bitte geben sie ein Gericht und entsprechenden Link für den %s ein' % day}
+            buttons = {'en': ('Cancel', 'Accept'), 'de': ('Abbrechen', 'Annehmen')}
             # TODO: handle links
             self.mid.change_settings(title[self.lang_tag], message[self.lang_tag], "Name",
-                                     "Links", ("Cancel", "Accept2"),
+                                     "Links", (buttons[self.lang_tag][0], buttons[self.lang_tag][1]),
                                      lambda x, y: self.weekly_tw.setItem(row, col, QTableWidgetItem(x)))
             self.mid.show()
 
@@ -247,6 +299,8 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         '''
         global running
         running = False
+        self.bar_thread.terminate()
+        self.bar_thread.join()
 
     def update_frame(self, img):
         '''
@@ -261,7 +315,7 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         img = cv2.resize(img, (size.width()-10, size.height()-10))
         height, width, bpc = img.shape
         bpl = bpc * width
-        image = QImage(img.data, width, height, bpl, QtGui.QImage.Format_RGB888)
+        image = QImage(img.data, width, height, bpl, QImage.Format_RGB888)
         pitem = QGraphicsPixmapItem(QPixmap.fromImage(image))
         scene = QGraphicsScene()
         scene.addItem(pitem)
@@ -281,11 +335,11 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             names.append(self.stuff_table.item(i, 2).text())
             if not self.recipe_reader.get_hive_connection().check_if_in_stock(self.stuff_table.item(i, 2).text()):
                 # if the item is not in the stock mark it as red
-                self.stuff_table.item(i, 0).setBackground(QtGui.QColor(255, 128, 128))
-                self.stuff_table.item(i, 1).setBackground(QtGui.QColor(255, 128, 128))
-                self.stuff_table.item(i, 2).setBackground(QtGui.QColor(255, 128, 128))
+                self.stuff_table.item(i, 0).setBackground(QColor(255, 128, 128))
+                self.stuff_table.item(i, 1).setBackground(QColor(255, 128, 128))
+                self.stuff_table.item(i, 2).setBackground(QColor(255, 128, 128))
                 all_there = False
-            elif self.stuff_table.item(i, 0).background() == QtGui.QColor(255, 128, 128):
+            elif self.stuff_table.item(i, 0).background() == QColor(255, 128, 128):
                 all_there = False
         if all_there:
             # if all cals are there calculate everything and post it
@@ -311,7 +365,7 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             self.stuff_table.setItem(i, 1, QTableWidgetItem(item.state))
             self.stuff_table.setItem(i, 2, QTableWidgetItem(item.name))
             if empty:
-                self.stuff_table.item(i, 0).setBackground(QtGui.QColor(255, 128, 128))
+                self.stuff_table.item(i, 0).setBackground(QColor(255, 128, 128))
 
     def show_calorie_calc(self, row_count=0):
         '''
@@ -327,8 +381,8 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
         self.stuff_table.setHorizontalHeaderLabels(['Amount', 'Unit', 'Name'])
         if row_count > 0:
             stuff_widget = QWidget()
-            stuff_pixmap = QtGui.QPixmap('icons/add.png')
-            stuff_icon = QtGui.QIcon()
+            stuff_pixmap = QPixmap('icons/add.png')
+            stuff_icon = QIcon()
             stuff_add_bt = QToolButton()
             stuff_icon.addPixmap(stuff_pixmap)
             stuff_add_bt.setIcon(stuff_icon)
@@ -351,10 +405,10 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             # if Item is none ignore
             return
         bg = item.background()
-        if bg == QtGui.QColor(255, 128, 128):
+        if bg == QColor(255, 128, 128):
             # if item is colorful ask the user to add cals
             name = self.stuff_table.item(row, 2).text()
-            text, ok = QtGui.QInputDialog.getText(self, 'Calorie Input Dialog',
+            text, ok = QInputDialog.getText(self, 'Calorie Input Dialog',
                                                   'Enter the calories per 100g for %s:' % name)
             reg = re.compile('([0-9,.]+)')
             cif = reg.match(text)
@@ -362,9 +416,9 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
                 return
             # if cal is added reprint the item
             self.recipe_reader.get_hive_connection().set_calorie_for_name(name, int(cif.group(1)))
-            self.stuff_table.item(row, 0).setBackground(QtGui.QColor(0, 0, 0))
-            self.stuff_table.item(row, 1).setBackground(QtGui.QColor(0, 0, 0))
-            self.stuff_table.item(row, 2).setBackground(QtGui.QColor(0, 0, 0))
+            self.stuff_table.item(row, 0).setBackground(QColor(0, 0, 0))
+            self.stuff_table.item(row, 1).setBackground(QColor(0, 0, 0))
+            self.stuff_table.item(row, 2).setBackground(QColor(0, 0, 0))
 
     def clear_table(self, old, new):
         '''
@@ -393,6 +447,8 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             for i, (vol, name, cal) in enumerate(ing):
                 vol_gr = self.regex.match(str(vol))
                 # regex the amount
+                volume = self.recipe_reader.get_hive_connection().get_volume_of_item(name)
+                volume = self.regex.match(volume)
                 if vol_gr is not None:
                     vol = float(vol_gr.group(1))
                     unit = vol_gr.group(2)
@@ -408,8 +464,11 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
                 ing_dic[name] = (i, vol, unit)
                 self.stuff_table.setItem(i, 0, QTableWidgetItem(str(vol)))
                 self.stuff_table.setItem(i, 1, QTableWidgetItem(unit))
+                volume = volume.group(1)
+                if int(volume) == 0:
+                    self.stuff_table.item(i, 0).setBackground(QColor(247, 188, 7))
                 if cal is None:
-                    self.stuff_table.item(i, 2).setBackground(QtGui.QColor(255, 128, 128))
+                    self.stuff_table.item(i, 2).setBackground(QColor(255, 128, 128))
 
     def set_timer(self, value):
         '''
@@ -535,3 +594,18 @@ class Kitchen(QtGui.QMainWindow, kitchen.Ui_Kitchen):
             return
         signal.disconnect()
         signal.connect(new_event)
+
+    @staticmethod
+    def read_barcodes(update):
+            '''
+            barcode reader
+            :param bar_queue: queue for data
+            :return:
+            '''
+            while True:
+                bar = input()
+                if len(bar) > 0:
+                    if bar == '000000000':
+                        break
+                    update(bar)
+            return
