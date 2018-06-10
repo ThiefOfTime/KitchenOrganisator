@@ -14,7 +14,6 @@ import multiprocessing
 import fridayUI.kitchen_gui as kitchen
 
 # import Hive modules
-from hive.SQLHiveConnection import DatabaseConnector
 from connections.HiveIO import RecipeReader
 from fridayUI.weekly_add_input_dialog_func import MealInputDialog
 
@@ -34,12 +33,12 @@ except ModuleNotFoundError:
 
 class Kitchen(QMainWindow, kitchen.Ui_Kitchen):
 
-    def __init__(self, start):
+    def __init__(self, start, hive_connection):
         super(Kitchen, self).__init__()
         self.setupUi(self)
 
         # Hive database
-        self.database_connector = DatabaseConnector()
+        self.database_connector = hive_connection
         self.recipe_reader = RecipeReader(self.database_connector)
         self.recipe_reader.load_recipes()
 
@@ -186,9 +185,9 @@ class Kitchen(QMainWindow, kitchen.Ui_Kitchen):
 
         # Barcode queue and thread
         # TODO: use different way, not input. maybe get serial to work or make an input window, or start a new program
-        self.bar_thread = multiprocessing.Process(target=Kitchen.read_barcodes,
-                                                  args=(self.update_invent_table_barcode, ))
-        self.bar_thread.start()
+        #self.bar_thread = multiprocessing.Process(target=Kitchen.read_barcodes,
+        #                                          args=(self.update_invent_table_barcode, ))
+        #self.bar_thread.start()
 
     def update_invent_table_barcode(self, bar):
         '''

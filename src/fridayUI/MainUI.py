@@ -27,7 +27,10 @@ import fridayUI.start_screen_gui as st
 # import other windows
 from fridayUI.new_rcp_gui_func import NewRecipe
 from fridayUI.kitchen_gui_func import Kitchen
+from fridayUI.inventory_gui_func import Inventory
 
+# import hive connection
+from hive.SQLHiveConnection import DatabaseConnector
 
 # TODO: documentation
 class Start(QMainWindow, st.Ui_Start):
@@ -36,8 +39,10 @@ class Start(QMainWindow, st.Ui_Start):
         super(Start, self).__init__()
         self.setupUi(self)
 
-        self.rec_ex = NewRecipe()
-        self.ktch_ex = Kitchen(self)
+        #self.rec_ex = NewRecipe()
+        hive_connection = DatabaseConnector()
+        self.inventory = Inventory(hive_connection)
+        self.ktch_ex = Kitchen(self, hive_connection)
         self.kitchen_bt.clicked.connect(self.show_kitchen)
         self.rec_bt.clicked.connect(self.show_new_recipe)
 
@@ -47,7 +52,8 @@ class Start(QMainWindow, st.Ui_Start):
 
     def show_new_recipe(self):
         self.hide()
-        self.rec_ex.show()
+        self.inventory.show()
+        #self.rec_ex.show()
 
 
 def main():
