@@ -53,7 +53,6 @@ class Inventory(QMainWindow, inventory.Inventory):
         self.code_ed.setFocus()
 
         self.code_ed.returnPressed.connect(self.bacode_scanned)
-
     def bacode_scanned(self):
         code_text = self.code_ed.text()
         if len(code_text.strip()) == 0:
